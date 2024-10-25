@@ -2,30 +2,44 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Pastel Sudoku</title>
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <title>Modern Sudoku</title>
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+            rel="stylesheet"
+        />
         <style>
             :root {
-                --primary-bg: #f0f4f8;
+                --primary-bg: #f8f9fa;
                 --board-bg: #ffffff;
-                --cell-border: #d9e2ec;
-                --strong-border: #9fb3c8;
-                --text-color: #486581;
-                --selected-bg: #e6f6ff;
-                --error-color: #ff8787;
-                --button-bg: #9fb3c8;
-                --button-hover: #829ab1;
+                --cell-border: #e9ecef;
+                --strong-border: #dee2e6;
+                --text-color: #495057;
+                --selected-bg: #e7f5ff;
+                --same-number-bg: #f1f3f5;
+                --error-color: #fa5252;
+                --button-bg: #339af0;
+                --button-hover: #228be6;
+                --button-text: #ffffff;
+                --input-button-bg: #f8f9fa;
+                --input-button-hover: #e9ecef;
+                --success-color: #40c057;
             }
 
             * {
                 box-sizing: border-box;
                 margin: 0;
                 padding: 0;
+                -webkit-tap-highlight-color: transparent;
+                user-select: none;
             }
 
             body {
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                    Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                    system-ui, sans-serif;
                 background-color: var(--primary-bg);
                 color: var(--text-color);
                 min-height: 100vh;
@@ -35,64 +49,187 @@
                 padding: 1rem;
             }
 
-            h1 {
-                margin: 1rem 0;
-                font-size: 1.8rem;
-                text-align: center;
-            }
-
             .game-container {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 1rem;
-                max-width: 500px;
+                gap: 1.5rem;
+                max-width: 600px;
                 width: 100%;
+                margin: 0 auto;
+            }
+
+            .header {
+                width: 100%;
+                text-align: center;
+                padding: 0.5rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+                font-weight: 700;
+                color: var(--text-color);
+                margin-bottom: 0.5rem;
+            }
+
+            .timer {
+                font-size: 1.2rem;
+                color: var(--text-color);
+                opacity: 0.8;
+            }
+
+            .board-container {
+                width: 100%;
+                aspect-ratio: 1;
+                padding: 0.5rem;
+                background: var(--board-bg);
+                border-radius: 12px;
+                box-shadow:
+                    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                    0 2px 4px -1px rgba(0, 0, 0, 0.06);
             }
 
             .board {
-                background: var(--board-bg);
-                border: 2px solid var(--strong-border);
-                border-radius: 8px;
-                padding: 0.5rem;
                 width: 100%;
-                aspect-ratio: 1;
+                height: 100%;
                 display: grid;
                 grid-template-columns: repeat(9, 1fr);
                 gap: 1px;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                background: var(--cell-border);
+                border: 2px solid var(--strong-border);
+                border-radius: 8px;
+                overflow: hidden;
             }
 
             .cell {
                 background: var(--board-bg);
-                border: 1px solid var(--cell-border);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: calc(16px + 1vw);
+                font-size: clamp(16px, 4vw, 24px);
+                font-weight: 500;
                 cursor: pointer;
-                transition: background-color 0.2s;
-                aspect-ratio: 1;
+                transition: all 0.2s ease;
+                position: relative;
             }
 
             .cell.selected {
                 background-color: var(--selected-bg);
             }
 
+            .cell.same-number {
+                background-color: var(--same-number-bg);
+            }
+
             .cell.error {
                 color: var(--error-color);
             }
 
-            .cell:nth-child(9n + 1),
-            .cell:nth-child(9n + 2),
-            .cell:nth-child(9n + 3) {
-                border-right: 1px solid var(--cell-border);
+            .cell.initial {
+                font-weight: 700;
             }
 
-            .cell:nth-child(9n + 4),
-            .cell:nth-child(9n + 5),
-            .cell:nth-child(9n + 6) {
-                border-right: 1px solid var(--cell-border);
+            .cell.highlight-box {
+                background-color: var(--same-number-bg);
+                opacity: 0.7;
+            }
+
+            .controls {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.75rem;
+                width: 100%;
+                padding: 0 0.5rem;
+            }
+
+            .number-pad {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.75rem;
+                width: 100%;
+                padding: 0.5rem;
+            }
+
+            button {
+                border: none;
+                border-radius: 8px;
+                padding: 1rem;
+                font-size: 1.1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+
+            .control-btn {
+                background: var(--button-bg);
+                color: var(--button-text);
+            }
+
+            .control-btn:hover {
+                background: var(--button-hover);
+                transform: translateY(-1px);
+            }
+
+            .number-btn {
+                background: var(--input-button-bg);
+                color: var(--text-color);
+                font-size: 1.3rem;
+            }
+
+            .number-btn:hover {
+                background: var(--input-button-hover);
+            }
+
+            .number-btn.active {
+                background: var(--button-bg);
+                color: var(--button-text);
+            }
+
+            .success-message {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: var(--success-color);
+                color: white;
+                padding: 1.5rem;
+                border-radius: 12px;
+                font-size: 1.2rem;
+                font-weight: 600;
+                animation: fadeInUp 0.3s ease;
+                z-index: 1000;
+            }
+
+            @media (max-width: 480px) {
+                .game-container {
+                    gap: 1rem;
+                }
+
+                .header h1 {
+                    font-size: 1.5rem;
+                }
+
+                .timer {
+                    font-size: 1rem;
+                }
+
+                button {
+                    padding: 0.8rem;
+                    font-size: 1rem;
+                }
+
+                .number-btn {
+                    font-size: 1.2rem;
+                }
+            }
+
+            /* Grid lines */
+            .cell:nth-child(3n):not(:nth-child(9n)) {
+                border-right: 2px solid var(--strong-border);
             }
 
             .cell:nth-child(n + 19):nth-child(-n + 27),
@@ -100,297 +237,61 @@
                 border-bottom: 2px solid var(--strong-border);
             }
 
-            .cell:nth-child(3n) {
-                border-right: 2px solid var(--strong-border);
-            }
-
-            .controls {
-                display: grid;
-                grid-template-columns: repeat(5, 1fr);
-                gap: 0.5rem;
-                width: 100%;
-                max-width: 400px;
-            }
-
-            button {
-                background: var(--button-bg);
-                border: none;
-                border-radius: 8px;
-                color: white;
-                padding: 0.8rem;
-                font-size: 1.1rem;
-                cursor: pointer;
-                transition: background-color 0.2s;
-            }
-
-            button:hover {
-                background: var(--button-hover);
-            }
-
-            .number-pad {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 0.5rem;
-                width: 100%;
-                max-width: 400px;
-            }
-
-            @media (max-width: 400px) {
-                .controls button,
-                .number-pad button {
-                    font-size: 0.9rem;
-                    padding: 0.6rem;
+            /* Animations */
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translate(-50%, 20px);
                 }
+                to {
+                    opacity: 1;
+                    transform: translate(-50%, -50%);
+                }
+            }
+
+            @keyframes highlight {
+                0% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.1);
+                }
+                100% {
+                    transform: scale(1);
+                }
+            }
+
+            .cell.animate {
+                animation: highlight 0.3s ease;
             }
         </style>
     </head>
     <body>
         <div class="game-container">
-            <h1>Pastel Sudoku</h1>
-            <div class="board" id="board"></div>
-            <div class="controls">
-                <button onclick="newGame()">New</button>
-                <button onclick="checkSolution()">Check</button>
-                <button onclick="solvePuzzle()">Solve</button>
-                <button onclick="clearBoard()">Clear</button>
-                <button onclick="undo()">Undo</button>
+            <div class="header">
+                <h1>Modern Sudoku</h1>
+                <div class="timer">Time: <span id="time">00:00</span></div>
             </div>
-            <div class="number-pad">
-                <button onclick="setNumber(1)">1</button>
-                <button onclick="setNumber(2)">2</button>
-                <button onclick="setNumber(3)">3</button>
-                <button onclick="setNumber(4)">4</button>
-                <button onclick="setNumber(5)">5</button>
-                <button onclick="setNumber(6)">6</button>
-                <button onclick="setNumber(7)">7</button>
-                <button onclick="setNumber(8)">8</button>
-                <button onclick="setNumber(9)">9</button>
+            <div class="board-container">
+                <div class="board" id="board"></div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" id="newGame">New Game</button>
+                <button class="control-btn" id="check">Check</button>
+                <button class="control-btn" id="hint">Hint</button>
+            </div>
+            <div class="number-pad" id="numberPad">
+                <button class="number-btn" data-number="1">1</button>
+                <button class="number-btn" data-number="2">2</button>
+                <button class="number-btn" data-number="3">3</button>
+                <button class="number-btn" data-number="4">4</button>
+                <button class="number-btn" data-number="5">5</button>
+                <button class="number-btn" data-number="6">6</button>
+                <button class="number-btn" data-number="7">7</button>
+                <button class="number-btn" data-number="8">8</button>
+                <button class="number-btn" data-number="9">9</button>
             </div>
         </div>
-
-        <script>
-            let board = Array(9)
-                .fill()
-                .map(() => Array(9).fill(0));
-            let solution = Array(9)
-                .fill()
-                .map(() => Array(9).fill(0));
-            let initial = Array(9)
-                .fill()
-                .map(() => Array(9).fill(false));
-            let selectedCell = null;
-            let undoStack = [];
-
-            function createBoard() {
-                const boardElement = document.getElementById("board");
-                boardElement.innerHTML = "";
-
-                for (let i = 0; i < 9; i++) {
-                    for (let j = 0; j < 9; j++) {
-                        const cell = document.createElement("div");
-                        cell.className = "cell";
-                        cell.dataset.row = i;
-                        cell.dataset.col = j;
-                        cell.addEventListener("click", () => selectCell(cell));
-                        boardElement.appendChild(cell);
-                    }
-                }
-            }
-
-            function selectCell(cell) {
-                if (selectedCell) {
-                    selectedCell.classList.remove("selected");
-                }
-                selectedCell = cell;
-                cell.classList.add("selected");
-            }
-
-            function setNumber(num) {
-                if (
-                    !selectedCell ||
-                    initial[selectedCell.dataset.row][selectedCell.dataset.col]
-                ) {
-                    return;
-                }
-
-                const row = parseInt(selectedCell.dataset.row);
-                const col = parseInt(selectedCell.dataset.col);
-
-                undoStack.push({
-                    row: row,
-                    col: col,
-                    value: board[row][col],
-                });
-
-                board[row][col] = num;
-                updateDisplay();
-            }
-
-            function updateDisplay() {
-                const cells = document.getElementsByClassName("cell");
-                for (let i = 0; i < 9; i++) {
-                    for (let j = 0; j < 9; j++) {
-                        const cell = cells[i * 9 + j];
-                        cell.textContent = board[i][j] || "";
-                        cell.classList.remove("error");
-
-                        if (initial[i][j]) {
-                            cell.style.fontWeight = "bold";
-                        }
-                    }
-                }
-            }
-
-            function generatePuzzle() {
-                // Generate a solved board first
-                clearBoard();
-                solveSudoku(solution);
-
-                // Copy solution to the playing board
-                for (let i = 0; i < 9; i++) {
-                    for (let j = 0; j < 9; j++) {
-                        board[i][j] = solution[i][j];
-                    }
-                }
-
-                // Remove numbers to create puzzle
-                const cellsToRemove = 40 + Math.floor(Math.random() * 15); // Remove 40-54 numbers
-                for (let i = 0; i < cellsToRemove; i++) {
-                    let row, col;
-                    do {
-                        row = Math.floor(Math.random() * 9);
-                        col = Math.floor(Math.random() * 9);
-                    } while (board[row][col] === 0);
-
-                    board[row][col] = 0;
-                }
-
-                // Mark initial numbers
-                for (let i = 0; i < 9; i++) {
-                    for (let j = 0; j < 9; j++) {
-                        initial[i][j] = board[i][j] !== 0;
-                    }
-                }
-            }
-
-            function solveSudoku(board) {
-                const empty = findEmpty(board);
-                if (!empty) {
-                    return true;
-                }
-
-                const [row, col] = empty;
-                for (let num = 1; num <= 9; num++) {
-                    if (isValid(board, num, row, col)) {
-                        board[row][col] = num;
-                        if (solveSudoku(board)) {
-                            return true;
-                        }
-                        board[row][col] = 0;
-                    }
-                }
-                return false;
-            }
-
-            function findEmpty(board) {
-                for (let i = 0; i < 9; i++) {
-                    for (let j = 0; j < 9; j++) {
-                        if (board[i][j] === 0) {
-                            return [i, j];
-                        }
-                    }
-                }
-                return null;
-            }
-
-            function isValid(board, num, row, col) {
-                // Check row
-                for (let i = 0; i < 9; i++) {
-                    if (board[row][i] === num && i !== col) {
-                        return false;
-                    }
-                }
-
-                // Check column
-                for (let i = 0; i < 9; i++) {
-                    if (board[i][col] === num && i !== row) {
-                        return false;
-                    }
-                }
-
-                // Check 3x3 box
-                const boxRow = Math.floor(row / 3) * 3;
-                const boxCol = Math.floor(col / 3) * 3;
-                for (let i = 0; i < 3; i++) {
-                    for (let j = 0; j < 3; j++) {
-                        if (
-                            board[boxRow + i][boxCol + j] === num &&
-                            (boxRow + i !== row || boxCol + j !== col)
-                        ) {
-                            return false;
-                        }
-                    }
-                }
-
-                return true;
-            }
-
-            function newGame() {
-                generatePuzzle();
-                undoStack = [];
-                updateDisplay();
-            }
-
-            function checkSolution() {
-                const cells = document.getElementsByClassName("cell");
-                let isCorrect = true;
-
-                for (let i = 0; i < 9; i++) {
-                    for (let j = 0; j < 9; j++) {
-                        if (board[i][j] !== solution[i][j]) {
-                            cells[i * 9 + j].classList.add("error");
-                            isCorrect = false;
-                        }
-                    }
-                }
-
-                if (isCorrect) {
-                    alert("Congratulations! You solved the puzzle!");
-                }
-            }
-
-            function solvePuzzle() {
-                for (let i = 0; i < 9; i++) {
-                    for (let j = 0; j < 9; j++) {
-                        board[i][j] = solution[i][j];
-                    }
-                }
-                updateDisplay();
-            }
-
-            function clearBoard() {
-                for (let i = 0; i < 9; i++) {
-                    for (let j = 0; j < 9; j++) {
-                        if (!initial[i][j]) {
-                            board[i][j] = 0;
-                        }
-                    }
-                }
-                undoStack = [];
-                updateDisplay();
-            }
-
-            function undo() {
-                if (undoStack.length === 0) return;
-
-                const lastMove = undoStack.pop();
-                board[lastMove.row][lastMove.col] = lastMove.value;
-                updateDisplay();
-            }
-
-            // Initialize the game
-            createBoard();
-            newGame();
-        </script>
+        <script src="sudoku.js"></script>
     </body>
 </html>
